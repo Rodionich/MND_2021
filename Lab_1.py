@@ -1,4 +1,6 @@
 import random
+import timeit
+start_time = timeit.default_timer()
 
 A0, A1, A2, A3 = [random.randint(0, 20) for j in range(4)]
 
@@ -79,4 +81,4 @@ print(f"\nЕталонне Yет: = {A0} + {A1}*x01 + {A2}*x02 + {A3}*x03" )
 print(f"\nФункція: Y = {A0} + {A1}*x1 + {A2}*x2 + {A3}*x3")
 print("Оптимальна точка плану(Критерій оптимальності - Yсереднє <-):  Y({0}, {1}, {2}) = {3}".format(*OPT_POINT, "%.1f" % Y[index]))
 print("Виконав: студент групи ІО-92 Іванов Родіон    Варіант 209")
-
+print("Час виконання роботи програми дорівнює {} секунд.".format(round(timeit.default_timer() - start_time, 5)))
