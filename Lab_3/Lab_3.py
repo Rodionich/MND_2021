@@ -4,6 +4,7 @@ import numpy as np
 import math
 import itertools
 from prettytable import PrettyTable
+import timeit
 
 class Lab3:
     def __init__(self):
@@ -149,7 +150,7 @@ class Lab3:
         print("Рівняння регресії без незначимих членів: y = " + equation)
         self.d = len(betas_to_print)
         self.factors_table2 = [np.array([1] + list(i)) for i in self.naturalized_factors_table]
-        self.fisher_criteria(self.m, self.N, self.d, self.factors_table2, self.matrix, self.b_coefficients, self.importance)
+        self.fisher_criteria(self.m, self.N, 1, self.factors_table2, self.matrix, self.b_coefficients, self.importance)
 
     def calculate_theoretical_y(self, x_table, b_coefficients, importance):
         x_table = [list(itertools.compress(row, importance)) for row in x_table]
@@ -178,4 +179,14 @@ class Lab3:
         f_t = float((fisher_table.row_values(f3) if f3 <= 30 else fisher_table.row_values(30))[f4].replace(",", "."))
         print("Fp = {}, Ft = {}".format(f_p, f_t))
         print("Fp < Ft => модель адекватна" if f_p < f_t else "Fp > Ft => модель неадекватна")
-Lab3()
+
+results = []
+for i in range(100):
+    start_time = timeit.default_timer()
+    Lab3()
+    finish_time = timeit.default_timer()
+    results.append(finish_time - start_time)
+print("Кількість ітерацій = " + str(len(results)) )
+print("Масив розрахованого часу виконання ста ітерацій : " + str(results))
+print("Середній час виконання 1 ітерації : " + str(sum(results)/100) + " секунд")
+
