@@ -5,7 +5,7 @@ from _pydecimal import Decimal
 from itertools import compress
 import math
 from scipy.stats import f, t
-
+import timeit
 #                      x1  x2  x3    x12 x13 x23    x123
 norm_factors_table = [[-1, -1, -1,   +1, +1, +1,    -1],
                       [-1, +1, +1,   -1, -1, +1,    -1],
@@ -173,18 +173,27 @@ def get_fisher_value(f3,f4, q):
     return Decimal(abs(f.isf(q,f4,f3))).quantize(Decimal('.0001')).__float__()
 
 
-while not cochran_criteria(M, 4, y_arr):
-    M += 1
-    y_table = [[r.randint(y_min, y_max) for _ in range(M)] for j in range(N)]
-print("Матриця планування:")
-labels_table = list(map(lambda x: x.ljust(6), ["x1", "x2", "x3", "x12", "x13", "x23", "x123"] + ["y{}".format(i+1) for i in range(M)]))
-rows_table = [list(factors_table[i]) + list(y_arr[i]) for i in range(N)]
-rows_normalized_table = [factors_table[i] + list(y_arr[i]) for i in range(N)]
-print((" ").join(labels_table))
-print("\n".join([" ".join(map(lambda j: "{:<+6}".format(j), rows_table[i])) for i in range(len(rows_table))]))
-print("\t")
 
-norm_factors_table_zero_factor = [[+1]+i for i in norm_factors_table]
-importance = student_criteria(M, N, y_arr , norm_factors_table_zero_factor)
+results = []
+for i in range(100):
+    start_time = timeit.default_timer()
+    while not cochran_criteria(M, 4, y_arr):
+        M += 1
+        y_table = [[r.randint(y_min, y_max) for _ in range(M)] for j in range(N)]
+    print("Матриця планування:")
+    labels_table = list(map(lambda x: x.ljust(6),
+                            ["x1", "x2", "x3", "x12", "x13", "x23", "x123"] + ["y{}".format(i + 1) for i in range(M)]))
+    rows_table = [list(factors_table[i]) + list(y_arr[i]) for i in range(N)]
+    rows_normalized_table = [factors_table[i] + list(y_arr[i]) for i in range(N)]
+    print((" ").join(labels_table))
+    print("\n".join([" ".join(map(lambda j: "{:<+6}".format(j), rows_table[i])) for i in range(len(rows_table))]))
+    print("\t")
+    norm_factors_table_zero_factor = [[+1] + i for i in norm_factors_table]
+    importance = student_criteria(M, N, y_arr, norm_factors_table_zero_factor)
 
-fisher_criteria(M, N, 1, factors_table, y_arr, natural_bi, importance)
+    fisher_criteria(M, N, 1, factors_table, y_arr, natural_bi, importance)
+    finish_time = timeit.default_timer()
+    results.append(finish_time - start_time)
+print("Кількість ітерацій = " + str(len(results)) )
+print("Масив розрахованого часу виконання ста ітерацій : " + str(results))
+print("Середній час виконання 1 ітерації : " + str(sum(results)/100) + " секунд")
