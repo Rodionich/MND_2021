@@ -110,7 +110,13 @@ def student_criteria(m, N, y_table, beta_coefficients):
     print(*to_print, sep="; ")
     equation = " ".join(["".join(i) for i in zip(list(map(lambda x: "{:+.2f}".format(x), betas_to_print)),x_i_names)])
     print("Рівняння регресії без незначимих членів: y = " + equation)
-    return importance
+
+    unimportance = [True if el < t else False for el in list(t_i)]
+    b_to_print = list(compress(beta_coefficients, unimportance))
+    x2_i_names = list(
+        compress(["", "x1", "x2", "x3", "x12", "x13", "x23", "x123", "x1^2", "x2^2", "x3^2"], unimportance))
+    eq = " ".join(["".join(i) for i in zip(list(map(lambda x: "{:+.2f}".format(x), b_to_print)), x2_i_names)])
+    return importance, eq
 
 
 def calculate_theoretical_y(x_table, b_coefficients, importance):
@@ -188,6 +194,7 @@ free_values = [m_ij(y_i, x_i(i)) for i in range(11)]
 beta_coefficients = np.linalg.solve(coefficients, free_values)
 print(list(map(int,beta_coefficients)))
 
-importance = student_criteria(m, N, y_arr, beta_coefficients)
+importance, eq = student_criteria(m, N, y_arr, beta_coefficients)
 d = len(list(filter(None, importance)))
 fisher_criteria(m, N, d, naturalized_factors_table, y_arr, beta_coefficients, importance)
+print("\nДодаткове завдання:\nРівняння регресії тільки із незначимих членів: y = " + eq)
