@@ -5,6 +5,7 @@ from scipy.stats import f, t
 import numpy
 from itertools import compress
 from functools import reduce
+import timeit
 
 xmin = [-20, -30, -30]
 xmax = [15, 45, -15]
@@ -178,18 +179,31 @@ def fisher_criteria(m, N, d, x_table, y_table, b_coefficients, importance):
     print("Fp < Ft => модель адекватна" if f_p < f_t else "Fp > Ft => модель неадекватна")
     return True if f_p < f_t else False
 
-
 m = 3
 N = 15
 natural_plan = generate_factors_table(natur_plan_raw)
 y_arr = generate_y(m, natur_plan_raw)
+
+start_time = timeit.default_timer()
 while not cochran_criteria(m, N, y_arr):
     m += 1
     y_arr = generate_y(m, natural_plan)
+finish_time = timeit.default_timer()
+t1 = finish_time - start_time
 
 print_matrix(m, N, natural_plan, y_arr, " для натуралізованих факторів:")
 coefficients = find_coefficients(natural_plan, y_arr)
 print_equation(coefficients)
+
+start_time = timeit.default_timer()
 importance = student_criteria(m, N, y_arr, coefficients)
+finish_time = timeit.default_timer()
+t2 = finish_time - start_time
+
 d = len(list(filter(None, importance)))
+start_time = timeit.default_timer()
 fisher_criteria(m, N, d, natural_plan, y_arr, coefficients, importance)
+finish_time = timeit.default_timer()
+t3 = finish_time - start_time
+
+print("\nЧас виконання кожної статистичної перевірки: \nПеревірка за критерієм Кохрена - {} секунд \nПеревірка за критерієм Стьюдента - {} секунд \nПеревірка за критерієм Фішера - {} секунд".format(round(t1,5),round(t2,5),round(t3,5)))
